@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kuis IPS Sejarah Kelas 8</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #2e3a59, #3e5787);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1, h2 {
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1em;
+      border-radius: 10px;
+      border: none;
+    }
+    button {
+      background-color: #2196f3;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1976d2;
+    }
+    #options button {
+      display: block;
+      margin: 10px auto;
+      width: 80%;
+    }
+    .page {
+      display: none;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: rgba(255, 255, 255, 0.1);
+      margin: 5px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="startPage" class="page" style="display: block;">
+    <h1>Kuis IPS Sejarah Kelas 8</h1>
+    <input type="text" id="usernameInput" placeholder="Masukkan nama kamu"/>
+    <br>
+    <button onclick="startQuiz()">Mulai Kuis</button>
+    <button onclick="showLeaderboard()">Lihat Leaderboard</button>
+    <button onclick="showHistory()">Lihat Riwayat</button>
+  </div>
+
+  <div id="quizPage" class="page">
+    <h2 id="questionText"></h2>
+    <div id="options"></div>
+  </div>
+
+  <div id="scorePage" class="page">
+    <h2 id="scoreText"></h2>
+    <button onclick="saveScore()">Simpan Skor</button>
+    <button onclick="showLeaderboard()">Lihat Leaderboard</button>
+    <button onclick="showHistory()">Lihat Riwayat</button>
+    <button onclick="goBack()">Kembali ke Awal</button>
+  </div>
+
+  <div id="leaderboardPage" class="page">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboardList"></ul>
+    <button onclick="goBack()">Kembali</button>
+  </div>
+
+  <div id="historyPage" class="page">
+    <h2>Riwayat Jawaban</h2>
+    <ul id="historyList"></ul>
+    <button onclick="goBack()">Kembali</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Siapa yang dikenal sebagai pelopor pergerakan nasional Indonesia?",
+        options: ["Sukarno", "Ki Hadjar Dewantara", "R.A. Kartini", "Dr. Wahidin Sudirohusodo"],
+        answer: 3
+      },
+      {
+        question: "Apa tujuan utama dari Budi Utomo yang didirikan pada tahun 1908?",
+        options: ["Memperjuangkan kemerdekaan", "Meningkatkan pendidikan pribumi", "Memperkuat Belanda", "Mengembangkan pertanian"],
+        answer: 1
+      },
+      {
+        question: "Apa yang dimaksud dengan nasionalisme?",
+        options: ["Konflik antar negara", "Cinta tanah air dan bangsa", "Menaklukkan negara lain", "Menolak budaya asing"],
+        answer: 1
+      },
+      {
+        question: "Siapa penjelajah Portugis pertama ke Indonesia pada 1511?",
+        options: ["Columbus", "Vasco da Gama", "Magellan", "Albuquerque"],
+        answer: 3
+      },
+      {
+        question: "Konsekuensi ekonomi dari kolonialisme Belanda?",
+        options: ["Kesejahteraan meningkat", "Pertanian modern", "Eksploitasi SDA", "Perdagangan global"],
+        answer: 2
+      },
+      {
+        question: "Apa itu Politik Etis?",
+        options: ["Hak politik warga", "Perbaikan etika", "Pemerintahan adil", "Integrasi budaya Belanda"],
+        answer: 2
+      },
+      {
+        question: "Dampak kolonialisme terhadap budaya?",
+        options: ["Pelestarian budaya", "Penggantian budaya", "Asimilasi budaya", "Budaya campuran"],
+        answer: 2
+      },
+      {
+        question: "Apa itu Sumpah Pemuda?",
+        options: ["Sumpah damai", "Kepentingan asing", "Lawan penjajah", "Ikuti budaya Barat"],
+        answer: 2
+      },
+      {
+        question: "Motif utama penjelajahan samudra?",
+        options: ["Sebarkan Kristen", "Kuasai SDA", "Perdagangan global", "Semua benar"],
+        answer: 3
+      },
+      {
+        question: "Tujuan Operasi Trikora?",
+        options: ["Diplomasi", "Rebut Irian Barat", "Pembangunan ekonomi", "Promosi budaya"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let history = [];
+    let username = "";
+
+    function switchPage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+      document.getElementById(pageId).style.display = "block";
+    }
+
+    function startQuiz() {
+      username = document.getElementById("usernameInput").value;
+      if (!username.trim()) {
+        alert("Masukkan nama kamu dulu.");
+        return;
+      }
+      currentQuestion = 0;
+      score = 0;
+      history = [];
+      switchPage("quizPage");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= questions.length) {
+        switchPage("scorePage");
+        document.getElementById("scoreText").innerText = `${username}, skor kamu: ${score}`;
+        return;
+      }
+      const q = questions[currentQuestion];
+      document.getElementById("questionText").innerText = `Soal ${currentQuestion + 1}: ${q.question}`;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick =
